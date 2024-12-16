@@ -7,7 +7,7 @@ import RegisterView from '../views/RegisterView.vue'
 import AnalysisView from '../views/AnalysisView.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',

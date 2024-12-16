@@ -14,11 +14,17 @@ const app = express()
 const port = process.env.PORT || 3001
 
 // 中间件
-app.use(cors())
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://geoffreyqin12.github.io', 'https://geoffreyqin12.github.io/love-match']
+    : 'http://localhost:5173',
+  credentials: true
+}))
 app.use(express.json())
 
 // 数据库连接
-mongoose.connect('mongodb://127.0.0.1:27017/love-match')
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/love-match'
+mongoose.connect(MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err))
 
@@ -34,6 +40,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ message: 'Something went wrong!' })
 })
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`)
-}) 
+// Vercel 处理
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+  })
+}
+
+export default app 

@@ -6,7 +6,9 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "dev:server": "ts-node -P tsconfig.server.json server/index.ts"
+    "dev:server": "ts-node -P tsconfig.server.json server/index.ts",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",
@@ -31,6 +33,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@vitejs/plugin-vue": "^5.2.1",
+    "gh-pages": "^6.2.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.6.2",
     "vite": "^6.0.1",
