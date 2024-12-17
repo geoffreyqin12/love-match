@@ -11,7 +11,6 @@ import { historyRoutes } from './routes/history'
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 3001
 
 // 中间件
 app.use(cors({
@@ -21,6 +20,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 app.use(express.json())
+
+// 健康检查端点
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' })
+})
 
 // 数据库连接
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/love-match'
@@ -40,11 +44,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ message: 'Something went wrong!' })
 })
 
-// Vercel 处理
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
-  })
-}
+// 处理404错误
+app.use((req: express.Request, res: express.Response) => {
+  res.status(404).json({ message: 'Route not found' })
+})
 
 export default app 
