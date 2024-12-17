@@ -72,9 +72,14 @@ mongoose.connection.on('disconnected', () => {
 })
 
 mongoose.connect(MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,
+  connectTimeoutMS: 30000,
+  retryWrites: true,
+  retryReads: true,
+  maxPoolSize: 10,
+  minPoolSize: 5,
+  maxIdleTimeMS: 30000,
 }).catch(err => {
   console.error('MongoDB connection error:', err)
   console.error('MongoDB URI:', MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://[username]:[password]@'))
