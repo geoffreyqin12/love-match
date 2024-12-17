@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server/index.ts",
+      "src": "server/api.ts",
       "use": "@vercel/node"
     }
   ],
@@ -16,7 +16,7 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true"
       },
-      "dest": "/server/index.ts"
+      "dest": "server/api.ts"
     }
   ]
 } 
