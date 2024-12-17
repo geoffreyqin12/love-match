@@ -25,29 +25,60 @@ app.use(express.json())
 app.get('/api/health', async (req, res) => {
   try {
     const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    const connectionState = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting',
+      99: 'uninitialized'
+    }
     res.json({ 
       status: 'ok', 
       message: 'Server is running',
       database: dbStatus,
-      mongodbUri: process.env.MONGODB_URI ? 'configured' : 'not configured'
+      detailedStatus: connectionState[mongoose.connection.readyState],
+      mongodbUri: process.env.MONGODB_URI ? 'configured' : 'not configured',
+      mongodbHost: process.env.MONGODB_URI ? new URL(process.env.MONGODB_URI).hostname : 'not available'
     })
   } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message })
+    console.error('Health check error:', error)
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
   }
 })
 
 // 数据库连接
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/love-match'
-console.log('Connecting to MongoDB...')
-mongoose.connect(MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000, // 5 秒超时
-  socketTimeoutMS: 45000, // 45 秒超时
+console.log('Starting MongoDB connection...')
+console.log('MongoDB host:', new URL(MONGODB_URI).hostname)
+
+mongoose.connection.on('connecting', () => {
+  console.log('Connecting to MongoDB...')
 })
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => {
-    console.error('MongoDB connection error:', err)
-    console.error('MongoDB URI:', MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://[username]:[password]@'))
-  })
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected successfully')
+})
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err)
+})
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected')
+})
+
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
+}).catch(err => {
+  console.error('MongoDB connection error:', err)
+  console.error('MongoDB URI:', MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://[username]:[password]@'))
+})
 
 // 路由
 app.use('/api/share', shareRoutes)
