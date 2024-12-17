@@ -15,10 +15,10 @@ const port = process.env.PORT || 3001
 
 // 中间件
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://geoffreyqin12.github.io', 'https://geoffreyqin12.github.io/love-match']
-    : 'http://localhost:5173',
-  credentials: true
+  origin: 'https://geoffreyqin12.github.io',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 app.use(express.json())
 
